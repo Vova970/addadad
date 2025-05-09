@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Shop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>❄️ Frosty Shop</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Главная</a>
+            {% if 'user_id' in session %}
+                <a href="{{ url_for('profile') }}">Профиль</a>
+                {% if session.get('telegram_id') == 'admin' %}
+                    <a href="{{ url_for('admin') }}">Админ</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}">Выйти</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" id="tg-login">Войти через Telegram</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        // Проверяем, находимся ли мы в Telegram WebApp
+        if (window.Telegram && Telegram.WebApp.initData) {
+            const initData = new URLSearchParams(Telegram.WebApp.initData);
+            const user = JSON.parse(initData.get('user') || '{}');
+            
+            if (user.id) {
+                fetch("{{ url_for('telegram_auth') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: user.id,
+                        first_name: user.first_name
+                    })
+                }).then(r => r.json()).then(data => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                });
+            }
+        }
+
+        // Обработчик для кнопки входа
+        document.getElementById('tg-login')?.addEventListener('click', function(e) {
+            if (window.Telegram && Telegram.WebApp.openLink) {
+                e.preventDefault();
+                Telegram.WebApp.openLink(this.href);
+            }
+        });
+
+        // Проверка существующей авторизации
+        if (!{{ 'true' if 'user_id' in session else 'false' }}) {
+            const token = localStorage.getItem('tg_auth_token');
+            if (token) {
+                fetch("{{ url_for('check_auth') }}?token=" + token)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.authenticated) {
+                            window.location.reload();
+                        } else {
+                            localStorage.removeItem('tg_auth_token');
+                        }
+                    });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="offer-detail">
+        <h2>{{ offer['name'] }}</h2>
+        <p class="description">{{ offer['description'] }}</p>
+        
+        <div class="prices">
+            <p>{{ offer['price_rub'] }} ₽</p>
+            <p>{{ offer['price_uah'] }} ₴</p>
+            <p>{{ offer['price_usd'] }} $</p>
+        </div>
+        
+        {% if 'user_id' in session %}
+            <div class="actions">
+                <a href="#" class="button">Купить</a>
+                <a href="#" class="button">Написать нам</a>
+            </div>
+        {% else %}
+            <p>Войдите через Telegram, чтобы купить</p>
+        {% endif %}
+    </div>
+    <a href="{{ url_for('all_special_offers') }}" class="button">Назад</a>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="admin-panel">
+        <h2>Админ-панель</h2>
+        
+        <div class="admin-section">
+            <h3>Добавить категорию</h3>
+            <form method="POST">
+                <input type="text" name="category_name" placeholder="Название категории" required>
+                <button type="submit" name="add_category">Добавить</button>
+            </form>
+        </div>
+        
+        <div class="admin-section">
+            <h3>Добавить товар</h3>
+            <form method="POST">
+                <select name="category_id" required>
+                    {% for category in categories %}
+                        <option value="{{ category['id'] }}">{{ category['name'] }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="product_name" placeholder="Название товара" required>
+                <textarea name="description" placeholder="Описание" required></textarea>
+                <input type="number" name="price" placeholder="Цена" min="1" required>
+                <input type="text" name="item" placeholder="Что получит пользователь" required>
+                <button type="submit" name="add_product">Добавить</button>
+            </form>
+        </div>
+        
+        <div class="admin-section">
+            <h3>Все товары</h3>
+            <ul class="product-list">
+                {% for product in products %}
+                    <li>
+                        <strong>{{ product['category_name'] }} / {{ product['name'] }}</strong>
+                        - {{ product['price'] }} ❄️
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

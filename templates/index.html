@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Специальные предложения</h2>
+    <div class="special-offers">
+        {% for offer in special_offers %}
+            <div class="offer-card">
+                <a href="{{ url_for('special_offer', offer_id=offer['id']) }}">
+                    <h3>{{ offer['name'] }}</h3>
+                    <p>{{ offer['price_rub'] }} ₽ / {{ offer['price_uah'] }} ₴ / {{ offer['price_usd'] }} $</p>
+                </a>
+            </div>
+        {% endfor %}
+        <a href="{{ url_for('all_special_offers') }}" class="button">Все предложения</a>
+    </div>
+
+    <h2>Категории</h2>
+    <div class="categories">
+        {% for category in categories %}
+            <div class="category-card">
+                <a href="{{ url_for('category', category_id=category['id']) }}">
+                    <h3>{{ category['name'] }}</h3>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

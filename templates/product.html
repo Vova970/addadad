@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="product-detail">
+        <h2>{{ product['category_name'] }}</h2>
+        <h3>{{ product['name'] }}</h3>
+        <p class="description">{{ product['description'] }}</p>
+        <p class="price">{{ product['price'] }} ❄️</p>
+        
+        {% if 'user_id' in session %}
+            <a href="{{ url_for('buy', product_id=product['id']) }}" class="button">Купить</a>
+        {% else %}
+            <p>Войдите, чтобы купить</p>
+        {% endif %}
+        
+        {% if session.get('is_admin') %}
+            <div class="admin-info">
+                <h4>Инфо для админа:</h4>
+                <p>Товар: {{ product['item'] }}</p>
+            </div>
+        {% endif %}
+    </div>
+    <a href="{{ url_for('category', category_id=product['category_id']) }}" class="button">Назад</a>
+{% endblock %}
