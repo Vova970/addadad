@@ -2,8 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
+import os
+import sqlalchemy as sa
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 app.secret_key = secrets.token_hex(16)
 app.config['DATABASE'] = 'database.db'
 app.config['TELEGRAM_BOT_URL'] = 'https://t.me/aoubebfoubewfpiwnfbot'  # Замените на ссылку вашего бота
@@ -67,6 +71,18 @@ def init_db():
 
 init_db()
 
+engine = sa.create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+conn = engine.connect()
+
+# Проверка подключения
+try:
+    conn.execute(sa.text("SELECT 1"))
+    print("✅ База данных подключена")
+except Exception as e:
+    print("❌ Ошибка подключения к БД:", e)
+finally:
+    conn.close()
+    
 def get_db():
     conn = sqlite3.connect(app.config['DATABASE'])
     conn.row_factory = sqlite3.Row
@@ -303,4 +319,4 @@ def buy(product_id):
     return redirect(url_for('profile'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
